@@ -61,21 +61,6 @@ All other traffic is **implicitly denied**.
 Internet traffic terminates at the **Application Load Balancer (ALB)** in the DMZ.  
 The App and Data tiers are never directly exposed to the internet.
 
-## Architecture Diagram (Logical)
-
-is **not inside a ```mermaid block**, so GitHub just shows raw text.
-
----
-
-## 2️⃣ The diagram content itself is correct (minor formatting tweak)
-
-Your node and edge definitions are almost perfect. We just need to wrap everything correctly.
-
----
-
-## ✅ EXACT FIX — Copy/Paste This
-
-Replace your entire diagram section with **this exact Markdown**:
 
 ```markdown
 ## Architecture Diagram (Logical)
@@ -93,6 +78,7 @@ flowchart TB
     DMZ -->|HTTPS 443<br/>(policy-defined)| APP
     DMZ -->|HTTP 80<br/>(ALB health checks)| APP
     APP -->|DB 5432<br/>(explicit policy)| DATA
+```
 ```
 
 **Legend**
