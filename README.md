@@ -257,7 +257,7 @@ aws ec2 describe-security-groups ...
 The DMZ tier intentionally permits inbound 0.0.0.0/0 only on HTTPS (443) to the Application Load Balancer.
 Noother tiers allow public CIDR access. 
 
-![No CIDR Ingress](docs/evidence/validation/sg-dmz-public-443-only)
+![No CIDR Ingress](docs/evidence/validation/sg-dmz-public-443-only.png)
 
 ## Repository Structure
 

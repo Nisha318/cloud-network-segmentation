@@ -32,7 +32,8 @@ flows:
     protocol: tcp
     ports: [80]
     description: "ALB health checks"
-    
+
+
   - name: app_to_data_db
     from: app
     to: data
