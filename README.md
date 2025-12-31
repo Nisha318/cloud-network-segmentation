@@ -64,17 +64,18 @@ The App and Data tiers are never directly exposed to the internet.
 ## Architecture Diagram (Logical)
 
 flowchart TB
-  Internet([Internet])
+    Internet([Internet])
 
-  DMZ["DMZ Tier<br/>- Application Load Balancer<br/>- Internet-facing entry point<br/><br/>SG: dmz-sg"]
-  APP["App Tier<br/>- EC2 / ECS application workloads<br/><br/>SG: app-sg"]
-  DATA["Data Tier<br/>- RDS / Datastores<br/><br/>SG: data-sg"]
-  EP["Endpoints Tier<br/>- VPC Endpoints / PrivateLink<br/><br/>SG: endpoints-sg"]
+    DMZ["DMZ Tier<br/>Application Load Balancer<br/>Internet-facing entry point<br/><br/>SG: dmz-sg"]
+    APP["App Tier<br/>EC2 / ECS application workloads<br/><br/>SG: app-sg"]
+    DATA["Data Tier<br/>RDS / Datastores<br/><br/>SG: data-sg"]
+    EP["Endpoints Tier<br/>VPC Endpoints / PrivateLink<br/><br/>SG: endpoints-sg"]
 
-  Internet -->|HTTPS 443<br/>(explicitly allowed by policy)| DMZ
-  DMZ -->|HTTPS 443<br/>(policy-defined)| APP
-  DMZ -->|HTTP 80<br/>(ALB health checks)| APP
-  APP -->|DB 5432<br/>(explicit policy)| DATA
+    Internet -->|HTTPS 443<br/>(explicitly allowed by policy)| DMZ
+    DMZ -->|HTTPS 443<br/>(policy-defined)| APP
+    DMZ -->|HTTP 80<br/>(ALB health checks)| APP
+    APP -->|DB 5432<br/>(explicit policy)| DATA
+
 
 
 **Legend**
@@ -127,6 +128,7 @@ flows:
     protocol: tcp
     ports: [80]
     description: "ALB health checks"
+```
 
 ## Guardrails and Validation
 
