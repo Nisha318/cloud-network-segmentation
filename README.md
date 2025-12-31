@@ -64,36 +64,31 @@ The App and Data tiers are never directly exposed to the internet.
 
 ## Architecture Diagram (Logical)
 
+**Figure: Policy-Driven Network Segmentation Model**
+
+This diagram illustrates logical network segmentation enforced through explicit,
+policy-defined flows. All traffic between tiers is deny-by-default and only
+permitted when defined in `segmentation-policy.yaml`. Infrastructure enforcement
+is implemented using security group–to–security group rules generated from policy.
+
 ```mermaid
 flowchart TB
-    Internet([Internet])
+    Internet((Internet))
 
     DMZ["DMZ Tier<br/>Application Load Balancer<br/>Internet-facing entry point<br/><br/>SG: dmz-sg"]
-    APP["App Tier<br/>EC2 / ECS application workloads<br/><br/>SG: app-sg"]
+    APP["App Tier<br/>EC2 / ECS workloads<br/><br/>SG: app-sg"]
     DATA["Data Tier<br/>RDS / Datastores<br/><br/>SG: data-sg"]
     EP["Endpoints Tier<br/>VPC Endpoints / PrivateLink<br/><br/>SG: endpoints-sg"]
 
-    Internet -->|HTTPS 443<br/>(explicitly allowed by policy)| DMZ
-    DMZ -->|HTTPS 443<br/>(policy-defined)| APP
-    DMZ -->|HTTP 80<br/>(ALB health checks)| APP
-    APP -->|DB 5432<br/>(explicit policy)| DATA
+    Internet -->|HTTPS 443| DMZ
+    DMZ -->|HTTPS 443| APP
+    DMZ -->|HTTP 80| APP
+    APP -->|DB 5432| DATA
+
 ```
 
+*All network traffic is deny-by-default and only permitted when explicitly defined in policy and enforced through security group–to–security group rules.*
 
-**Legend**
-- Solid arrows represent **explicitly allowed network flows** defined in policy  
-- Absence of an arrow implies **deny-by-default**  
-- All east–west traffic is enforced using **security group to security group rules**  
-- Internet ingress terminates at the **ALB in the DMZ** and is not modeled as SG-to-SG traffic  
-- Health check traffic (HTTP 80) is treated as a **first-class policy exception**
-
-
-**Figure: Policy-driven network segmentation enforcing explicit trust boundaries and deny-by-default traffic flows**
-
-
-This architecture enforces deny-by-default network segmentation using policy as the single source of truth.  
-Only flows explicitly defined in policy are permitted between tiers and are enforced as security group–to–security group rules.  
-All other network paths are implicitly denied, reducing lateral movement and limiting blast radius.
 
 ---
 
@@ -193,6 +188,7 @@ If the policy rule is removed, health checks fail and targets become unhealthy.
 
 ## Repository Structure
 
+```text
 .
 ├── policy/
 │   └── segmentation-policy.yaml
@@ -207,6 +203,7 @@ If the policy rule is removed, health checks fail and targets become unhealthy.
 │       │       ├── main.tf
 │       │       ├── variables.tf
 │       │       └── policy.auto.tfvars.json
+│       │
 │       └── modules/
 │           ├── security_groups/
 │           ├── alb_dmz/
@@ -214,6 +211,7 @@ If the policy rule is removed, health checks fail and targets become unhealthy.
 │
 └── docs/
     └── architecture.md
+```
 
 ## How to Use
 
