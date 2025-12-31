@@ -62,7 +62,6 @@ Internet traffic terminates at the **Application Load Balancer (ALB)** in the DM
 The App and Data tiers are never directly exposed to the internet.
 
 
-```markdown
 ## Architecture Diagram (Logical)
 
 ```mermaid
@@ -79,10 +78,9 @@ flowchart TB
     DMZ -->|HTTP 80<br/>(ALB health checks)| APP
     APP -->|DB 5432<br/>(explicit policy)| DATA
 ```
-```
+
 
 **Legend**
-
 - Solid arrows represent **explicitly allowed network flows** defined in policy  
 - Absence of an arrow implies **deny-by-default**  
 - All east–west traffic is enforced using **security group to security group rules**  
@@ -90,10 +88,8 @@ flowchart TB
 - Health check traffic (HTTP 80) is treated as a **first-class policy exception**
 
 
-
-```markdown
 **Figure: Policy-driven network segmentation enforcing explicit trust boundaries and deny-by-default traffic flows**
-```
+
 
 This architecture enforces deny-by-default network segmentation using policy as the single source of truth.  
 Only flows explicitly defined in policy are permitted between tiers and are enforced as security group–to–security group rules.  
