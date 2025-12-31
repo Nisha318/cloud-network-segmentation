@@ -25,3 +25,21 @@
 .DS_Store
 Thumbs.db
 nul
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform.lock.hcl
+
+# Generated policy outputs (optional: keep it, but do not keep multiple copies)
+# infra/terraform/envs/**/policy.auto.tfvars.json
+
+# Evidence outputs (keep, but avoid binaries)
+docs/evidence/**/.terraform/
+docs/evidence/**/*.zip
+docs/evidence/**/*.exe
+docs/evidence/**/*.bin
+
+# OS noise
+Thumbs.db
+.DS_Store

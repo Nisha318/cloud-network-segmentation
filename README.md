@@ -78,8 +78,8 @@ flowchart TB
     DMZ["DMZ Tier<br/>Application Load Balancer<br/>Internet-facing entry point<br/><br/>SG: dmz-sg"]
     APP["App Tier<br/>EC2 / ECS workloads<br/><br/>SG: app-sg"]
     DATA["Data Tier<br/>RDS / Datastores<br/><br/>SG: data-sg"]
-    EP["Endpoints Tier<br/>VPC Endpoints / PrivateLink<br/><br/>SG: endpoints-sg"]
-
+    EP["Endpoints Tier<br/>VPC Endpoints / PrivateLink<br/><br/>SG: endpoints-sg<br/><br/><i>No flows defined yet</i>"]
+        
     Internet -->|HTTPS 443| DMZ
     DMZ -->|HTTPS 443| APP
     DMZ -->|HTTP 80| APP
@@ -89,6 +89,7 @@ flowchart TB
 
 *All network traffic is deny-by-default and only permitted when explicitly defined in policy and enforced through security group–to–security group rules.*
 
+**Note**: The Endpoints tier is shown without connections because no policy-approved flows currently exist. Access must be explicitly declared in policy before being permitted.
 
 ---
 
@@ -142,6 +143,8 @@ Invalid policies **do not generate Terraform.**
 This prevents insecure changes from reaching AWS.
 
 ## Automation Flow
+
+```text
 segmentation-policy.yaml
         ↓
 validate + enforce guardrails
@@ -151,6 +154,7 @@ generate_sg_rules.py
 policy.auto.tfvars.json
         ↓
 Terraform security group modules
+```
 
 The automation **does not create infrastructure**.  
 It only generates inputs that Terraform consumes.
