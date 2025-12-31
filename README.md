@@ -142,6 +142,7 @@ Invalid policies **do not generate Terraform.**
 
 This prevents insecure changes from reaching AWS.
 
+
 ## Automation Flow
 
 ```text
@@ -188,6 +189,14 @@ This rule is:
 
 If the policy rule is removed, health checks fail and targets become unhealthy.
 
+## Testing & Validation
+
+This architecture was validated through targeted connectivity and health checks to confirm that policy-defined flows are correctly enforced and that all non-approved traffic is denied by default. After deploying the segmentation controls, Application Load Balancer reachability and target health were tested end-to-end by intentionally observing failure conditions, including unhealthy targets and HTTP 504 responses, when required policy rules were absent. Once the appropriate DMZ-to-App HTTP allowance was added to support ALB health checks, the environment recovered as expected.
+
+Final validation confirmed HTTP 200 responses from the Application Load Balancer, healthy target group status, and security group rules reflecting only policy-approved, security group-to-security group access. These results demonstrate that network connectivity is a direct outcome of policy changes rather than ad hoc infrastructure configuration.
+
+
+[Evidence: Successful ALB reachability](docs/evidence/prod/2025-12-30/reachability/curl_alb_http_200.png)
 
 
 ## Repository Structure
