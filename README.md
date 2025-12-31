@@ -63,54 +63,28 @@ The App and Data tiers are never directly exposed to the internet.
 
 ## Architecture Diagram (Logical)
 
+flowchart TB
+  Internet([Internet])
+
+  DMZ["DMZ Tier<br/>- Application Load Balancer<br/>- Internet-facing entry point<br/><br/>SG: dmz-sg"]
+  APP["App Tier<br/>- EC2 / ECS application workloads<br/><br/>SG: app-sg"]
+  DATA["Data Tier<br/>- RDS / Datastores<br/><br/>SG: data-sg"]
+  EP["Endpoints Tier<br/>- VPC Endpoints / PrivateLink<br/><br/>SG: endpoints-sg"]
+
+  Internet -->|HTTPS 443<br/>(explicitly allowed by policy)| DMZ
+  DMZ -->|HTTPS 443<br/>(policy-defined)| APP
+  DMZ -->|HTTP 80<br/>(ALB health checks)| APP
+  APP -->|DB 5432<br/>(explicit policy)| DATA
 
 
-                    Internet
-                        |
-                        |  HTTPS (443)
-                        |  (explicitly allowed by policy)
-                        v
-+--------------------------------------------------+
-|                    DMZ Tier                      |
-|  - Application Load Balancer                     |
-|  - Internet-facing entry point                   |
-|                                                  |
-|  SG: dmz-sg                                      |
-+------------------------+-------------------------+
-                         |
-                         | HTTPS (443)
-                         | HTTP (80) – health checks
-                         | (policy-defined flows only)
-                         v
-+--------------------------------------------------+
-|                    App Tier                      |
-|  - EC2 / ECS application workloads               |
-|                                                  |
-|  SG: app-sg                                      |
-+------------------------+-------------------------+
-                         |
-                         | DB traffic only (e.g., 5432)
-                         | (explicit app → data policy)
-                         v
-+--------------------------------------------------+
-|                   Data Tier                      |
-|  - RDS / Datastores                               |
-|                                                  |
-|  SG: data-sg                                     |
-+--------------------------------------------------+
+**Legend**
 
-+--------------------------------------------------+
-|                Endpoints Tier                    |
-|  - VPC Endpoints / PrivateLink                   |
-|                                                  |
-|  SG: endpoints-sg                                |
-+--------------------------------------------------+
+- Solid arrows represent **explicitly allowed network flows** defined in policy  
+- Absence of an arrow implies **deny-by-default**  
+- All east–west traffic is enforced using **security group to security group rules**  
+- Internet ingress terminates at the **ALB in the DMZ** and is not modeled as SG-to-SG traffic  
+- Health check traffic (HTTP 80) is treated as a **first-class policy exception**
 
-Legend:
-- All arrows represent flows explicitly defined in policy
-- No CIDR-based east-west rules
-- No implicit allow paths
-- All other traffic is denied by default
 
 **Figure: Policy-Driven Network Segmentation Architecture**
 
@@ -243,7 +217,7 @@ If the policy rule is removed, health checks fail and targets become unhealthy.
 
 Edit:
 
-```text
+```bash
 policy/segmentation-policy.yaml
 ```
 
