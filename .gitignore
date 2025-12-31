@@ -43,3 +43,6 @@ docs/evidence/**/*.bin
 # OS noise
 Thumbs.db
 .DS_Store
+
+# Generated policy inputs
+infra/terraform/envs/*/policy.auto.tfvars.json

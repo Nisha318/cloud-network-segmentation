@@ -1,0 +1,14 @@
+{
+  "policy_tiers": ["dmz", "app", "data", "endpoints"],
+  "policy_rules": [
+    {
+      "name": "dmz_to_app_https",
+      "from_tier": "dmz",
+      "to_tier": "app",
+      "protocol": "tcp",
+      "from_port": 443,
+      "to_port": 443,
+      "desc": "DMZ to App HTTPS"
+    }
+  ]
+}

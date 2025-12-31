@@ -160,6 +160,13 @@ Terraform security group modules
 The automation **does not create infrastructure**.  
 It only generates inputs that Terraform consumes.
 
+> **Note:**  
+> The `policy.auto.tfvars.json` file is generated automatically from
+> `policy/segmentation-policy.yaml` and is intentionally not committed.
+> A sanitized example (`policy.auto.tfvars.json.example`) is provided to
+> document the expected structure and policy-to-Terraform interface.
+
+
 ---
 
 ## Infrastructure Enforcement
@@ -191,13 +198,66 @@ If the policy rule is removed, health checks fail and targets become unhealthy.
 
 ## Testing & Validation
 
-This architecture was validated through targeted connectivity and health checks to confirm that policy-defined flows are correctly enforced and that all non-approved traffic is denied by default. After deploying the segmentation controls, Application Load Balancer reachability and target health were tested end-to-end by intentionally observing failure conditions, including unhealthy targets and HTTP 504 responses, when required policy rules were absent. Once the appropriate DMZ-to-App HTTP allowance was added to support ALB health checks, the environment recovered as expected.
+This architecture was validated through targeted connectivity and health checks to confirm that **policy-defined flows are correctly enforced** and that all non-approved traffic is denied by default.
 
-Final validation confirmed HTTP 200 responses from the Application Load Balancer, healthy target group status, and security group rules reflecting only policy-approved, security group-to-security group access. These results demonstrate that network connectivity is a direct outcome of policy changes rather than ad hoc infrastructure configuration.
+After deploying the segmentation controls, Application Load Balancer reachability and target health were tested end-to-end by intentionally observing failure conditions, including unhealthy targets and HTTP 504 responses, when required policy rules were absent. Once the appropriate **DMZ-to-App HTTP allowance** was added to support ALB health checks, the environment recovered as expected.
 
+Final validation confirmed:
+- HTTP 200 responses from the Application Load Balancer
+- Healthy target group status when policy permits required flows
+- Security group rules reflecting only **policy-approved, security group–to–security group access**
 
-[Evidence: Successful ALB reachability](docs/evidence/prod/2025-12-30/reachability/curl_alb_http_200.png)
+These results demonstrate that **network connectivity is a direct outcome of policy changes**, not ad hoc infrastructure configuration.
 
+---
+
+### Connectivity Validation
+
+The following tests confirm that application traffic is reachable **only through the DMZ Application Load Balancer**, as defined by policy.
+
+**ALB → App Tier (Success)**  
+An HTTP 200 response confirms an allowed, policy-defined flow.
+
+![ALB to App Success](docs/evidence/validation/alb-connectivity-success.png)
+
+**Direct Access Bypass Attempt (Failure)**  
+Attempting to bypass the ALB results in connection failure, demonstrating deny-by-default enforcement.
+
+![Direct Access Failure](docs/evidence/validation/alb-connectivity-failure.png)
+
+---
+
+### Target Group Health Validation
+
+The ALB target group health directly reflects policy enforcement.
+
+- When the **DMZ → App health check flow** is defined in policy, targets remain healthy.
+- When the policy rule is removed and Terraform is reapplied, targets immediately transition to unhealthy.
+
+This confirms that **segmentation policy directly controls operational availability**.
+
+![Healthy target group](docs/evidence/validation/tg-healthy-policy-present.png)
+![Unhealthy target group after policy removal](docs/evidence/validation/tg-unhealthy-policy-removed.png)
+
+---
+
+### Deny-by-Default Enforcement
+
+The App, Data, and Endpoints tiers do not permit any CIDR-based ingress rules.  
+All east-west traffic is enforced strictly via **security group–to–security group rules**.
+
+**App Tier – No CIDR Ingress**
+```bash
+aws ec2 describe-security-groups ...
+```
+**Data Tier – No CIDR Ingress**
+
+**DMZ Tier – Controlled Public Ingress**
+
+The DMZ tier intentionally permits inbound 0.0.0.0/0 only on HTTPS (443) to the Application Load Balancer.
+Noother tiers allow public CIDR access. 
+
+![No CIDR Ingress](docs/evidence/validation/sg-dmz-public-443-only)
 
 ## Repository Structure
 
@@ -207,7 +267,8 @@ Final validation confirmed HTTP 200 responses from the Application Load Balancer
 │   └── segmentation-policy.yaml
 │
 ├── automation/
-│   └── generate_sg_rules.py
+│   ├── generate_sg_rules.py
+│   └── validate_policy.py
 │
 ├── infra/
 │   └── terraform/
@@ -222,8 +283,18 @@ Final validation confirmed HTTP 200 responses from the Application Load Balancer
 │           ├── alb_dmz/
 │           └── network_vpc/
 │
-└── docs/
-    └── architecture.md
+├── docs/
+│   ├── architecture.md
+│   └── evidence/
+│       └── validation/
+│           ├── alb-connectivity-success.png
+│           ├── alb-connectivity-failure.png
+│           ├── sg-dmz-public-443-only.png
+│           ├── sg-app-no-cidr-ingress.png
+│           └── sg-data-no-cidr-ingress.png
+│
+├── README.md
+└── LICENSE
 ```
 
 ## How to Use
