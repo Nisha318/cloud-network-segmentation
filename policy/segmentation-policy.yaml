@@ -1,0 +1,53 @@
+project: cloud-network-segmentation
+environment: prod
+
+tiers:
+  dmz:
+    description: "Public edge tier (ALB, reverse proxy, WAF integration point)"
+  app:
+    description: "Application workloads (EC2/ECS)"
+  data:
+    description: "Datastores (RDS, caches)"
+  endpoints:
+    description: "VPC endpoints tier (PrivateLink)"
+
+flows:
+  - name: https_public_to_dmz
+    from: internet
+    to: dmz
+    protocol: tcp
+    ports: [443]
+    description: "Internet to DMZ on HTTPS"
+
+  - name: dmz_to_app_https
+    from: dmz
+    to: app
+    protocol: tcp
+    ports: [443]
+    description: "DMZ to App on HTTPS"
+
+  - name: app_to_data_db
+    from: app
+    to: data
+    protocol: tcp
+    ports: [5432]
+    description: "App to Data on DB port (example: Postgres)"
+
+  - name: dmz_to_app_http
+    from: dmz
+    to: app
+    protocol: tcp
+    ports: [80]
+    description: "DMZ to App HTTP (ALB health checks)"
+
+guardrails:
+  deny_cidrs:
+    - "0.0.0.0/0"
+  allowed_internet_ports:
+    - 443
+  allowed_protocols:
+    - tcp
+  allowed_ports:
+    - 443
+    - 5432
+    - 80

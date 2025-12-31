@@ -1,0 +1,28 @@
+flows:
+  - name: https_public_to_dmz
+    from: internet
+    to: dmz
+    protocol: tcp
+    ports: [443]
+    description: "Internet to DMZ on HTTPS"
+
+  - name: dmz_to_app_http
+    from: dmz
+    to: app
+    protocol: tcp
+    ports: [80]
+    description: "DMZ to App HTTP (ALB health checks)"
+
+  - name: dmz_to_app_https
+    from: dmz
+    to: app
+    protocol: tcp
+    ports: [443]
+    description: "DMZ to App on HTTPS"
+
+  - name: app_to_data_db
+    from: app
+    to: data
+    protocol: tcp
+    ports: [5432]
+    description: "App to Data on DB port (example: Postgres)"
