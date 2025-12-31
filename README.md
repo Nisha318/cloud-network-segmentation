@@ -63,6 +63,24 @@ The App and Data tiers are never directly exposed to the internet.
 
 ## Architecture Diagram (Logical)
 
+is **not inside a ```mermaid block**, so GitHub just shows raw text.
+
+---
+
+## 2️⃣ The diagram content itself is correct (minor formatting tweak)
+
+Your node and edge definitions are almost perfect. We just need to wrap everything correctly.
+
+---
+
+## ✅ EXACT FIX — Copy/Paste This
+
+Replace your entire diagram section with **this exact Markdown**:
+
+```markdown
+## Architecture Diagram (Logical)
+
+```mermaid
 flowchart TB
     Internet([Internet])
 
@@ -75,8 +93,7 @@ flowchart TB
     DMZ -->|HTTPS 443<br/>(policy-defined)| APP
     DMZ -->|HTTP 80<br/>(ALB health checks)| APP
     APP -->|DB 5432<br/>(explicit policy)| DATA
-
-
+```
 
 **Legend**
 
@@ -87,7 +104,10 @@ flowchart TB
 - Health check traffic (HTTP 80) is treated as a **first-class policy exception**
 
 
-**Figure: Policy-Driven Network Segmentation Architecture**
+
+```markdown
+**Figure: Policy-driven network segmentation enforcing explicit trust boundaries and deny-by-default traffic flows**
+```
 
 This architecture enforces deny-by-default network segmentation using policy as the single source of truth.  
 Only flows explicitly defined in policy are permitted between tiers and are enforced as security group–to–security group rules.  
