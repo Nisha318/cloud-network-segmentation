@@ -26,6 +26,13 @@ flows:
     ports: [443]
     description: "DMZ to App on HTTPS"
 
+  - name: dmz_to_app_http
+    from: dmz
+    to: app
+    protocol: tcp
+    ports: [80]
+    description: "ALB health checks"
+    
   - name: app_to_data_db
     from: app
     to: data
@@ -33,12 +40,6 @@ flows:
     ports: [5432]
     description: "App to Data on DB port (example: Postgres)"
 
-  - name: dmz_to_app_http
-    from: dmz
-    to: app
-    protocol: tcp
-    ports: [80]
-    description: "DMZ to App HTTP (ALB health checks)"
 
 guardrails:
   deny_cidrs:
